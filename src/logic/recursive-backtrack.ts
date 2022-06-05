@@ -1,4 +1,4 @@
-import { sample } from "../lib/utilts.ts";
+import { sample } from "../lib/utils.ts";
 import { Index, isEqualIndex } from "../models/CellIndex.ts";
 import { getValidNeighbors, getCell, Map } from "../models/Map.ts";
 import { WallName } from "../models/Wall.ts";

@@ -1,6 +1,14 @@
 import { Map } from "../models/Map.ts";
 import { Cell } from "../models/Cell.ts";
 
+const getCellValue = (cell: Cell, showPath: boolean) => {
+  if (cell.isStart) return " S ";
+  if (cell.isEnd) return " E ";
+  if (!showPath) return "   ";
+  if (cell.winning >= 0) return cell.winning.toString().padStart(3, "0");
+  return "   ";
+};
+
 export const printRow = (row: Cell[], rowIndex: number, showPath: boolean) => {
   let displayRows = [];
 
@@ -28,16 +36,8 @@ export const printRow = (row: Cell[], rowIndex: number, showPath: boolean) => {
   return displayRows.map((row) => row.join("")).join("\n");
 };
 
-export const printMap = (map: Map, showPath: boolean) => {
+export const printToText = (map: Map, showPath: boolean) => {
   const rows = map.map((row, index) => printRow(row, index, showPath));
 
   return rows.join("\n");
-};
-
-const getCellValue = (cell: Cell, showPath: boolean) => {
-  if (cell.isStart) return " S ";
-  if (cell.isEnd) return " E ";
-  if (!showPath) return "   ";
-  if (cell.winning >= 0) return cell.winning.toString().padStart(3, "0");
-  return "   ";
 };
