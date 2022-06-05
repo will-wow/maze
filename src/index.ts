@@ -2,6 +2,7 @@ import { parse } from "./deps.ts";
 import { emptyMap } from "./models/Map.ts";
 import { printToText } from "./view/print-to-text.ts";
 import { makeMazeRecursiveBacktrack } from "./logic/recursive-backtrack.ts";
+import { mapToGlb } from "./view/glb.ts";
 
 const { size = 20 } = parse(Deno.args);
 
@@ -15,3 +16,5 @@ makeMazeRecursiveBacktrack(
 console.log(printToText(map, false));
 console.log("\n");
 console.log(printToText(map, true));
+
+mapToGlb(map);
