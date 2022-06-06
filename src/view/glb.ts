@@ -1,3 +1,4 @@
+import { createCanvas } from "https://deno.land/x/canvas@v1.4.1/mod.ts";
 import { three, GLTFExporter } from "../deps.ts";
 import { Map } from "../models/Map.ts";
 
@@ -18,6 +19,28 @@ export const mapToGlb = async (map: Map) => {
   const verticalGeometry = new three.BoxBufferGeometry(thickness, 3, width);
 
   const scene = new three.Scene();
+  window.document = {
+    createElement(tagName: "canvas") {
+      const canvas = createCanvas(4272, 2848);
+      const bigCanvas = Object.create(canvas, {
+        width: { value: 4272, writable: true },
+        height: { value: 2848, writable: true },
+      });
+      return bigCanvas;
+    },
+  } as Document;
+
+  const textureData = await Deno.readFile("./src/assets/stucco.jpg");
+  const texture = new three.DataTexture(textureData, 4272, 2848);
+
+  // const imageUrl = URL.createObjectURL(
+  //   new Blob([textureData.buffer], { type: "image/jpf" })
+  // );
+
+  // const image = new Image();
+  // image.src = imageUrl;
+
+  // const texture = new three.Texture(image);
 
   map.forEach((row, rowIndex) => {
     row.forEach((cell, colIndex) => {

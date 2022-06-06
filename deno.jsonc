@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "allowJs": false,
-    "lib": ["deno.ns"],
+    "lib": ["deno.ns", "dom", "dom.iterable", "dom.asynciterable"],
     "strict": true
   },
+  "importMap": "./import_map.json",
   "lint": {
     "files": {
       "include": ["src/"],
