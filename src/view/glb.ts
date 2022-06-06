@@ -1,20 +1,23 @@
 import { three, GLTFExporter } from "../deps.ts";
 import { Map } from "../models/Map.ts";
 
-export const mapToGlb = (map: Map) => {
-  const scene = new three.Scene();
-
+export const mapToGlb = async (map: Map) => {
   const wallMaterial = new three.MeshStandardMaterial();
   const startMaterial = new three.MeshStandardMaterial({ color: "green" });
   const endMaterial = new three.MeshStandardMaterial({ color: "red" });
 
-  const wallWidth = 0.8;
-  const wallDepth = 0.1;
+  const height = 3;
+  const width = 0.8;
+  const thickness = 0.1;
 
-  const horizontalGeometry = new three.BoxGeometry(0.8, 3, 0.1);
-  const verticalGeometry = new three.BoxGeometry(wallDepth, 3, 0.8);
+  const horizontalGeometry = new three.BoxBufferGeometry(
+    width,
+    height,
+    thickness
+  );
+  const verticalGeometry = new three.BoxBufferGeometry(thickness, 3, width);
 
-  const shape = new three.Shape();
+  const scene = new three.Scene();
 
   map.forEach((row, rowIndex) => {
     row.forEach((cell, colIndex) => {
@@ -26,46 +29,50 @@ export const mapToGlb = (map: Map) => {
         ? endMaterial
         : wallMaterial;
 
+      const addWall = (horizontal: boolean, x: number, z: number) => {
+        const mesh = new three.Mesh(
+          horizontal ? horizontalGeometry : verticalGeometry,
+          material
+        );
+        mesh.position.set(x, height / 2, z);
+
+        cellGroup.add(mesh);
+      };
+
       cellGroup.position.set(colIndex, 0, rowIndex);
 
-      if (cell.walls.top) {
-        const top = new three.Mesh(horizontalGeometry, material);
-        top.position.set(wallWidth / 2, 0, 0);
-        cellGroup.add(top);
-      }
+      const ball = new three.Mesh(
+        new three.SphereBufferGeometry(0.2),
+        new three.MeshStandardMaterial({ color: "blue" })
+      );
+      cellGroup.add(ball);
 
-      if (cell.walls.left) {
-        const left = new three.Mesh(verticalGeometry, material);
-        left.position.set(0, 0, wallWidth / 2);
-        cellGroup.add(left);
-      }
-
-      if (cell.walls.bottom) {
-        const bottom = new three.Mesh(horizontalGeometry, material);
-        bottom.position.set(wallWidth / 2, 0, wallWidth);
-        cellGroup.add(bottom);
-      }
-
-      if (cell.walls.right) {
-        const right = new three.Mesh(verticalGeometry, material);
-        right.position.set(wallWidth, 0, wallWidth / 2);
-        cellGroup.add(right);
-      }
+      if (cell.walls.top) addWall(true, 0, -width / 2);
+      if (cell.walls.bottom) addWall(true, 0, width / 2);
+      if (cell.walls.right) addWall(false, width / 2, 0);
+      if (cell.walls.left) addWall(false, -width / 2, 0);
 
       scene.add(cellGroup);
     });
   });
 
+  exportGltf(scene);
+};
+
+const exportGltf = (scene: three.Scene): Promise<void> => {
   const exporter = new GLTFExporter();
-  exporter.parse(
-    scene,
-    async (gltf) => {
-      if (gltf instanceof ArrayBuffer) {
-        await Deno.writeFile("./data/maze.glb", new Uint8Array(gltf));
-      } else {
-        throw new Error("GLTF not arraybuffer");
-      }
-    },
-    { binary: true }
-  );
+  return new Promise((resolve, reject) => {
+    exporter.parse(
+      scene,
+      async (gltf) => {
+        if (gltf instanceof ArrayBuffer) {
+          await Deno.writeFile("./data/maze.glb", new Uint8Array(gltf));
+          resolve();
+        } else {
+          reject(new Error("GLTF not arraybuffer"));
+        }
+      },
+      { binary: true }
+    );
+  });
 };

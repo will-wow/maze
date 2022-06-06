@@ -1,4 +1,5 @@
 import { sample } from "../lib/utils.ts";
+import { Cell } from "../models/Cell.ts";
 import { Index, isEqualIndex } from "../models/CellIndex.ts";
 import { getValidNeighbors, getCell, Map } from "../models/Map.ts";
 import { WallName } from "../models/Wall.ts";
@@ -49,9 +50,10 @@ export const makeMazeRecursiveBacktrack = (
 ): void => {
   const stack: Index[] = [];
 
+  const startCell = getCell(start, map);
+  let endCell!: Cell;
+
   let current = start;
-  // Mark the start cell.
-  getCell(current, map).isStart = true;
 
   while (true) {
     // Mark current cell as visited.
@@ -60,7 +62,7 @@ export const makeMazeRecursiveBacktrack = (
 
     // If we made it to the end, mark the winning stack.
     if (isEqualIndex(current, end)) {
-      getCell(current, map).isEnd = true;
+      endCell = getCell(current, map);
       markWinningStack(map, stack);
     }
 
@@ -71,7 +73,7 @@ export const makeMazeRecursiveBacktrack = (
     if (!next) {
       const result = backtrack(stack, map);
       // If there's nothing left, we're done.
-      if (!result) return;
+      if (!result) break;
       [current, next] = result;
     }
 
@@ -84,5 +86,25 @@ export const makeMazeRecursiveBacktrack = (
 
     // Iterate.
     current = next;
+  }
+
+  startCell.isStart = true;
+  openGate(startCell);
+  endCell.isEnd = true;
+  openGate(endCell);
+};
+
+const openGate = (cell: Cell) => {
+  const {
+    walls: { top, right, bottom, left },
+  } = cell;
+  if (!top) {
+    cell.walls.bottom = false;
+  } else if (!right) {
+    cell.walls.left = false;
+  } else if (!bottom) {
+    cell.walls.top = false;
+  } else if (!left) {
+    cell.walls.right = false;
   }
 };

@@ -17,4 +17,4 @@ console.log(printToText(map, false));
 console.log("\n");
 console.log(printToText(map, true));
 
-mapToGlb(map);
+await mapToGlb(map);
