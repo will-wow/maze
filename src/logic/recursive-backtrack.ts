@@ -91,7 +91,6 @@ export const makeMazeRecursiveBacktrack = (
   startCell.isStart = true;
   openGate(startCell);
   endCell.isEnd = true;
-  openGate(endCell);
 };
 
 const openGate = (cell: Cell) => {

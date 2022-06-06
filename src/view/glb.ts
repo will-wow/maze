@@ -41,17 +41,21 @@ export const mapToGlb = async (map: Map) => {
 
       cellGroup.position.set(colIndex, 0, rowIndex);
 
-      const ball = new three.Mesh(
-        new three.SphereBufferGeometry(0.2),
-        new three.MeshStandardMaterial({ color: "blue" })
-      );
-      cellGroup.add(ball);
-
       if (cell.walls.top) addWall(true, 0, -width / 2);
       if (cell.walls.bottom) addWall(true, 0, width / 2);
       if (cell.walls.right) addWall(false, width / 2, 0);
       if (cell.walls.left) addWall(false, -width / 2, 0);
 
+      if (cell.isEnd) {
+        const endOrb = new three.Mesh(
+          new three.SphereBufferGeometry(0.2),
+          new three.MeshStandardMaterial({ color: "red" })
+        );
+        endOrb.name = "endOrb";
+        endOrb.position.set(0, 1.5, 0);
+
+        cellGroup.add(endOrb);
+      }
       scene.add(cellGroup);
     });
   });
